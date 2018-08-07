@@ -77,11 +77,49 @@ app.get('/user/:id', function (req, res) {
 });
 
 
+// API call to list down all available books
+app.get('/orderlist', function (req, res) {
 
+	var data = {
+		"error": 1,
+		"messege": ""
+	};
+
+	connection.query("SELECT * from orderlist", function (err, rows, fields) {
+		if (rows && rows.length != 0) {
+
+			res.json(rows);
+		} else {
+			data["messege"] = 'No orderlist Found..';
+			res.json(data);
+		}
+	});
+
+});
+
+
+// API call to get a specific book detials
+app.get('/orderlist/:id', function (req, res) {
+	var Id = req.params.id;
+	var data = {
+		"error": 1,
+		"messege": ""
+	};
+
+	connection.query("SELECT * from orderlist WHERE orderNo=?", [Id], function (err, rows, fields) {
+		if (rows.length != 0) {
+
+			res.json(rows);
+		} else {
+			data["messege"] = 'No orderlist Found in this id ... ';
+			res.json(data);
+		}
+	});
+});
 
 
 // API call to UPDATE an existing book
-app.post('/user', function (req, res) {
+app.post('/orderlist', function (req, res) {
 
 	var chunk = '';
 
@@ -93,10 +131,12 @@ app.post('/user', function (req, res) {
 
 	req.on('end', function () {
 		//파싱된 데이터를 확인합니다.
-		console.log("name : " + chunk.name + " , phone : " + chunk.phone);
-		var Bookname = req.body.bookname;
-		var Authorname = req.body.authorname;
-		var Price = req.body.price;
+
+		var userName = chunk.userName;
+		var menuNo = chunk.menuNo;
+		var orderCount = chunk.orderCount;
+		var orderDate = chunk.orderDate;
+		var orderStateNo = chunk.orderStateNo;
 	});
 
 	
@@ -106,8 +146,8 @@ app.post('/user', function (req, res) {
 		"messege": ""
 	};
 
-	if (!!Bookname && !!Authorname && !!Price) {
-		connection.query("INSERT INTO book VALUES('',?,?,?)", [Bookname, Authorname, Price], function (err, rows, fields) {
+	if (!!userName && !!menuNo && !!orderCount && !!orderDate && !!orderStateNo) {
+		connection.query("INSERT INTO user VALUES('',?,?,?,?,?)", [userName, menuNo, orderCount, orderDate, orderStateNo], function (err, rows, fields) {
 			if (!!err) {
 				da["messege"] = "querry error";
 			} else {
